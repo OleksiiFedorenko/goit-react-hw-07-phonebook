@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { getContacts } from 'redux/selectors';
-import { addContact } from 'redux/contactsSlice';
+import { addContact } from 'redux/operations';
+// import { addContact } from 'redux/contactsSlice';
 import { toast } from 'react-toastify';
 import { Formik } from 'formik';
 import * as yup from 'yup';
@@ -16,9 +17,9 @@ const nameRegex =
   /^[a-zA-Zа-яґєіїА-ЯҐЄІЇ]+(([' -][a-zA-Zа-яґєіїА-ЯҐЄІЇ ])?[a-zA-Zа-яґєіїА-ЯҐЄІЇ]*)*$/;
 const nameWarningMessage =
   "Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan";
-const numberRegex =
+const phoneRegex =
   /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/;
-const numberWarningMessage =
+const phoneWarningMessage =
   'Phone number must be at least 5 digits and can contain spaces, dashes, parentheses and can start with +';
 
 const validationSchema = yup.object().shape({
@@ -26,17 +27,17 @@ const validationSchema = yup.object().shape({
     .string()
     .matches(nameRegex, nameWarningMessage)
     .required('Please add name'),
-  number: yup
+  phone: yup
     .string()
-    .matches(numberRegex, numberWarningMessage)
-    .required('Please add number'),
+    .matches(phoneRegex, phoneWarningMessage)
+    .required('Please add phone number'),
 });
 
 const NewContactForm = () => {
   const dispatch = useDispatch();
   const contacts = useSelector(getContacts);
 
-  const handleSubmit = ({ name, number }, { resetForm }) => {
+  const handleSubmit = ({ name, phone }, { resetForm }) => {
     const normalizedName = name.toLowerCase();
     if (
       contacts.some(contact => contact.name.toLowerCase() === normalizedName)
@@ -45,14 +46,14 @@ const NewContactForm = () => {
       return;
     }
 
-    dispatch(addContact(name, number));
+    dispatch(addContact({ name, phone }));
     toast.success(`${name} is added to contacts.`);
     resetForm();
   };
 
   return (
     <Formik
-      initialValues={{ name: '', number: '' }}
+      initialValues={{ name: '', phone: '' }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
@@ -64,9 +65,9 @@ const NewContactForm = () => {
         </Label>
 
         <Label>
-          Number
-          <Input type="tel" name="number" />
-          <FormError name="number" component="div" />
+          Phone number
+          <Input type="tel" name="phone" />
+          <FormError name="phone" component="div" />
         </Label>
 
         <Button type="submit">Add contact</Button>
