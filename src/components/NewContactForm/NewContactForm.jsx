@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { getContacts } from 'redux/selectors';
+import { selectContacts } from 'redux/selectors';
 import { addContact } from 'redux/operations';
 // import { addContact } from 'redux/contactsSlice';
 import { toast } from 'react-toastify';
@@ -35,7 +35,7 @@ const validationSchema = yup.object().shape({
 
 const NewContactForm = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector(getContacts);
+  const contacts = useSelector(selectContacts);
 
   const handleSubmit = ({ name, phone }, { resetForm }) => {
     const normalizedName = name.toLowerCase();

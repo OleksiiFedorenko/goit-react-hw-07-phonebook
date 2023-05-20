@@ -1,54 +1,27 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, isAnyOf } from '@reduxjs/toolkit';
+import { initContacts } from './initial';
 import { fetchContacts, addContact, deleteContact } from './operations';
-
-const initContacts = {
-  items: [],
-  isLoading: false,
-  error: null,
-};
+import {
+  thunksStatuses,
+  handleFetch,
+  handleAdd,
+  handleDelete,
+  handlePending,
+  handleSuccess,
+  handleError,
+} from './handlers';
 
 const contactsSlice = createSlice({
   name: 'contacts',
   initialState: initContacts,
-  extraReducers: {
-    [fetchContacts.pending](state) {
-      state.isLoading = true;
-    },
-    [fetchContacts.fulfilled](state, action) {
-      state.isLoading = false;
-      state.error = null;
-      state.items = action.payload;
-    },
-    [fetchContacts.rejected](state, action) {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
-    [addContact.pending](state) {
-      state.isLoading = true;
-    },
-    [addContact.fulfilled](state, action) {
-      state.isLoading = false;
-      state.error = null;
-      state.items.push(action.payload);
-    },
-    [addContact.rejected](state, action) {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
-    [deleteContact.pending](state) {
-      state.isLoading = true;
-    },
-    [deleteContact.fulfilled](state, action) {
-      state.isLoading = false;
-      state.error = null;
-      state.items = state.items.filter(
-        contact => contact.id !== action.payload.id
-      );
-    },
-    [deleteContact.rejected](state, action) {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchContacts.fulfilled, handleFetch)
+      .addCase(addContact.fulfilled, handleAdd)
+      .addCase(deleteContact.fulfilled, handleDelete)
+      .addMatcher(isAnyOf(...thunksStatuses('pending')), handlePending)
+      .addMatcher(isAnyOf(...thunksStatuses('fulfilled')), handleSuccess)
+      .addMatcher(isAnyOf(...thunksStatuses('rejected')), handleError);
   },
 });
 

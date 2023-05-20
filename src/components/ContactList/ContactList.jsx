@@ -1,21 +1,33 @@
 import { useSelector } from 'react-redux';
-import { getContacts, getFilter } from 'redux/selectors';
+import {
+  selectContacts,
+  selectIsLoading,
+  selectError,
+  selectFilteredContacts,
+} from 'redux/selectors';
 import ContactListItem from 'components/ContactListItem/ContactListItem';
+import Loader from 'components/Loader/Loader';
 import NoContacts from 'components/NoContacts/NoContacts';
 import { ContactsContainer } from './ContactList.styled';
 
 const ContactList = () => {
-  const contacts = useSelector(getContacts);
+  const contacts = useSelector(selectContacts);
+  const isLoading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
+  const filteredContacts = useSelector(selectFilteredContacts);
 
-  const filter = useSelector(getFilter).toLowerCase();
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(filter)
-  );
+  if (isLoading) return <Loader />;
+
+  if (error) {
+    return (
+      <NoContacts message="Something went wrong, please try again later" />
+    );
+  }
 
   if (filteredContacts.length === 0) {
     return (
       <NoContacts
-        message={contacts.length > 0 ? `No contacts found` : `No contacts yet`}
+        message={contacts.length > 0 ? 'No contacts found' : 'No contacts yet'}
       />
     );
   }
